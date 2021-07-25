@@ -17,15 +17,25 @@ async def on_message(message):
         return
 
     if message.content.startswith('!corona'):
-        test = message.content.split(maxsplit=1)[1]
+        splittedCity = message.content.split(maxsplit=1)[1]
         city = ""
         for _, value in newJsonCity['data'].items():
-            if value['name'] == test:
+            if value['name'] == splittedCity:
                 city = value
-        await message.channel.send(f"{test} neue Fälle: {city['delta']['cases']} \n{test} R-Wert: {round(city['weekIncidence'], 2)}")
+        await message.channel.send(f"{splittedCity} neue Fälle: {city['delta']['cases']} \n{splittedCity} R-Wert: {round(city['weekIncidence'], 2)}")
     
     if message.content.startswith('deutschland'):
         await message.channel.send(f"Deutschland neue Fälle: {newJsonGermany['delta']['cases']} \nDeutschland R-Wert: {round(newJsonGermany['weekIncidence'], 2)}")
+
+    if message.content.startswith('!all'):
+        cityNames = ["Mannheim", "Ludwigshafen am Rhein", "Alzey-Worms", "Neustadt an der Weinstraße"]
+        for city in cityNames:
+            for _, value in newJsonCity['data'].items():
+                if value['name'] == city:
+                    newCity = value
+                    await message.channel.send(f"{city} neue Fälle: {newCity['delta']['cases']} | r-Wert: {round(newCity['weekIncidence'], 2)}")
+        await message.channel.send(f"Deutschland neue Fälle: {newJsonGermany['delta']['cases']} \nDeutschland R-Wert: {round(newJsonGermany['weekIncidence'], 2)}")
+
 
 def coronaCity():
 
