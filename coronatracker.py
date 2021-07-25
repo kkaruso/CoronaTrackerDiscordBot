@@ -1,6 +1,7 @@
-import requests
 import discord
-from tokenDC import DISCORDTOKEN, CITIES
+import requests
+
+from tokenDC import CITIES, DISCORDTOKEN
 
 client = discord.Client()
 
@@ -14,6 +15,7 @@ async def on_ready():
 async def on_message(message):
 
     if message.author == client.user:
+        # await message.add_reaction('<:weich:806915319209656321>')
         return
 
     if message.content.startswith('!corona'):
@@ -23,23 +25,10 @@ async def on_message(message):
             await help(message)
         elif user_request.lower() == 'germany':
             await corona_germany(message)
+        elif user_request.lower() == 'all':
+            await all(message)
         elif user_request.lower() in CITIES:
             await corona_city(message, user_request)
-
-    if message.content.startswith('!all'):
-        newJsonCity = requests.get(
-            'https://api.corona-zahlen.org/districts').json()['data']
-        newJsonGermany = requests.get(
-            'https://api.corona-zahlen.org/germany').json()
-        cityNames = ["Mannheim", "Ludwigshafen am Rhein",
-                     "Alzey-Worms", "Neustadt an der Weinstraße"]
-
-        for city in cityNames:
-            for _, value in newJsonCity.items():
-                if value['name'] == city:
-                    newCity = value
-                    await message.channel.send(f"{city} neue Fälle: {newCity['delta']['cases']} | r-Wert: {round(newCity['weekIncidence'], 2)}")
-        await message.channel.send(f"Deutschland neue Fälle: {newJsonGermany['delta']['cases']} \nDeutschland R-Wert: {round(newJsonGermany['weekIncidence'], 2)}")
 
 
 async def corona_city(message, requested_city):
@@ -61,7 +50,23 @@ async def corona_germany(message):
     await message.channel.send(f"Deutschland neue Fälle: {data_germany['delta']['cases']} \nDeutschland R-Wert: {round(data_germany['weekIncidence'], 2)}")
 
 
+async def all(message):
+    newJsonCity = requests.get(
+        'https://api.corona-zahlen.org/districts').json()['data']
+    newJsonGermany = requests.get(
+        'https://api.corona-zahlen.org/germany').json()
+    cityNames = ["Mannheim", "Ludwigshafen am Rhein",
+                 "Alzey-Worms", "Neustadt an der Weinstraße", "München"]
+
+    for _, value in newJsonCity.items():
+        if value['name'] in cityNames:
+            cityNames.remove(value['name'])
+            await message.channel.send(f"{value['name']} neue Fälle: {value['delta']['cases']} | r-Wert: {round(value['weekIncidence'], 2)}")
+
+    await message.channel.send(f"Deutschland neue Fälle: {newJsonGermany['delta']['cases']} | r-Wert: {round(newJsonGermany['weekIncidence'], 2)}")
+
+
 async def help(message):
-    await message.channel.send(f"No help")
+    await message.channel.send(f"No help!")
 
 client.run(DISCORDTOKEN)
