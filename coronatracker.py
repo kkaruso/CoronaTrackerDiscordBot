@@ -56,7 +56,7 @@ async def all(message):
     newJsonGermany = requests.get(
         'https://api.corona-zahlen.org/germany').json()
     cityNames = ["Mannheim", "Ludwigshafen am Rhein",
-                 "Alzey-Worms", "Neustadt an der Weinstraße", "München"]
+                 "Alzey-Worms", "Neustadt an der Weinstraße", "München", "Worms"]
 
     for _, value in newJsonCity.items():
         if value['name'] in cityNames:
